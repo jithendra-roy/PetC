@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PetC App UI</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin:0; padding:0; }
+    .hidden { display: none; }
+    nav { background:#333; color:white; padding:10px; }
+    nav button { margin-right:5px; }
+    section { padding:20px; }
+    .user-card { border:1px solid #ccc; margin:10px 0; padding:10px; }
+    #chat-area { border:1px solid #ccc; height:150px; overflow-y:scroll; padding:5px; }
+  </style>
+</head>
+<body>
+  <nav>
+    <button onclick="show('login')">Login</button>
+    <button onclick="show('profile')">Profile</button>
+    <button onclick="show('explore')">Explore</button>
+    <button onclick="show('connections')">Connections</button>
+    <button onclick="show('messaging')">Messaging</button>
+  </nav>
+
+  <section id="login">
+    <h2>Signup / Login</h2>
+    <input id="username" placeholder="Username" />
+    <input id="password" type="password" placeholder="Password" />
+    <button onclick="handleLogin()">Submit</button>
+  </section>
+
+  <section id="profile" class="hidden">
+    <h2>Profile Setup</h2>
+    <input id="name" placeholder="Name" />
+    <input id="photo" placeholder="Photo URL" />
+    <textarea id="bio" placeholder="Bio"></textarea>
+    <input id="pref" placeholder="Preferences" />
+    <button onclick="handleProfile()">Save</button>
+  </section>
+
+  <section id="pending" class="hidden">
+    <h2>Pending Approval</h2>
+    <p>Thanks for applying. We'll notify you once approved.</p>
+    <button onclick="approveUser()">Simulate Approval</button>
+  </section>
+
+  <section id="explore" class="hidden">
+    <h2>Explore</h2>
+    <div id="explore-list"></div>
+  </section>
+
+  <section id="connections" class="hidden">
+    <h2>Connections</h2>
+    <div id="connections-list"></div>
+  </section>
+
+  <section id="messaging" class="hidden">
+    <h2>Messaging</h2>
+    <div id="chat-area"></div>
+    <input id="chat-input" placeholder="Type message" />
+    <button onclick="sendMessage()">Send</button>
+  </section>
+
+<script>
+const sampleUsers = [
+  {id:1, name:'Alice', photo:'', bio:'', isApproved:true},
+  {id:2, name:'Bob', photo:'', bio:'', isApproved:true},
+  {id:3, name:'Charlie', photo:'', bio:'', isApproved:false}
+];
+let currentUser = {matches:[], messages:[], isApproved:false};
+function show(id){
+  document.querySelectorAll('section').forEach(s=>s.classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+}
+function handleLogin(){
+  show('profile');
+}
+function handleProfile(){
+  currentUser.name = document.getElementById('name').value;
+  currentUser.photo = document.getElementById('photo').value;
+  currentUser.bio = document.getElementById('bio').value;
+  currentUser.pref = document.getElementById('pref').value;
+  show('pending');
+}
+function approveUser(){
+  currentUser.isApproved = true;
+  renderExplore();
+  show('explore');
+}
+function renderExplore(){
+  const container = document.getElementById('explore-list');
+  container.innerHTML = '';
+  sampleUsers.filter(u=>u.isApproved).forEach(u=>{
+    const div = document.createElement('div');
+    div.className='user-card';
+    div.textContent = u.name;
+    const btn = document.createElement('button');
+    btn.textContent='Connect';
+    btn.onclick=()=>addMatch(u);
+    div.appendChild(btn);
+    container.appendChild(div);
+  });
+}
+function addMatch(user){
+  if(!currentUser.matches.find(m=>m.id===user.id)){
+    currentUser.matches.push(user);
+    renderConnections();
+  }
+}
+function renderConnections(){
+  const container = document.getElementById('connections-list');
+  container.innerHTML='';
+  currentUser.matches.forEach(u=>{
+    const div=document.createElement('div');
+    div.className='user-card';
+    div.textContent=u.name;
+    container.appendChild(div);
+  });
+}
+function sendMessage(){
+  const input=document.getElementById('chat-input');
+  const chat=document.getElementById('chat-area');
+  const msg=document.createElement('div');
+  msg.textContent=input.value;
+  chat.appendChild(msg);
+  input.value='';
+}
+</script>
+</body>
+</html>
